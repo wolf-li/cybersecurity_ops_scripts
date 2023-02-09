@@ -15,14 +15,13 @@
 # 配合 crontab 使用
 
 contentDir=/tmp/softwareUpdateInfo/
-# curlHeader="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
 curlHeader="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15"
 dateTimeNow=`date +%Y%m%d%H%M`
 tmpFilePath=${contentDir}"tmpFile"${dateTimeNow}
 resDataFilePath=${contentDir}"resDataFile"${dateTimeNow}
 resDataFilePath1=${contentDir}"resDataFile1"${dateTimeNow}
 todayResDataFilePath=${contentDir}"todayResDataFile"
-feishuWebhook="https://open.feishu.cn/open-apis/bot/v2/hook/f062ef8a-e07c-4578-8739-73857fc0267b"
+feishuWebhook="your feishu roboat webhook"
 todayDate=$(date +"%Y-%m-%d")
 
 if [ ! -d $contentDir ];then
@@ -54,8 +53,6 @@ checkContentDiff "tmpFile"
 
 # 数据转化为以下格式内容
 # 软件名,感知时间,更新类型,版本,漏洞级别,详情
-# 遇到隐藏内容依然保留
-# grep -C 3 '安全更新' ${tmpFilePath} | grep -v '\-\-' | grep -A  6 '</tr><tr>' | sed 's,</tr><tr>,\n,g' | sed -r "s#<td[^>]*?>##g" | sed -r "s#</td[^>]*?>\s*#,#g" | sed 's#<a target="_blank" href="#https://security.tencent.com/index.php/#g' | sed 's#">详情</a>,# #g' |  sed 's/^\s*//g'  | tr ' ' '\n' | tr -s '\n'  | sed '1d' | awk '{if(NR % 6 == 0) {print $0} else {printf("%s", $0)}}' > ${resDataFilePath}
 grep -C 3 '安全更新' ${tmpFilePath} | sed '/<!-- <tr>/,$d' | grep "<td" | sed 's,</tr><tr>,\n,g'  |  sed -r "s#<td[^>]*?>##g" | sed -r "s#</td[^>]*?>\s*#,#g" | sed 's#<a target="_blank" href="#https://security.tencent.com/index.php/#g' | sed 's#">详情</a>,# #g' |  sed 's/^\s*//g'|  awk '{if(NR % 6 == 0) {print $0} else {printf("%s", $0)}}' | grep -E "$(date +"%Y-%m-%d")|$(date +"%Y-%m-%d" -d "-1 day")" > ${resDataFilePath}
 # 需要将最后的链接替换为官方链接
 
